@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.jws.WebService;
+import javax.xml.ws.WebServiceRef;
 
 public class DSMSCustomerClient {
 
@@ -14,6 +14,8 @@ public class DSMSCustomerClient {
 	double budget;
 	String store;
 	File log;
+	@WebServiceRef(wsdlLocation="http://localhost:8080/dsms?wsdl")
+	static DSMSImpl service;
 
 	public DSMSCustomerClient(String[] args, String ID) {
 		if(ID.charAt(2) != 'U') {
@@ -42,7 +44,7 @@ public class DSMSCustomerClient {
 		String custAndBudget = this.customerID + budget;
 
 		// corba invoke method
-		//double price = dsmsServant.purchaseItem(custAndBudget, itemID, dateOfPurchase);
+		double price = service.purchaseItem(custAndBudget, itemID, dateOfPurchase);
 
 		if(price > 0 && this.budget > price) { // If purchase was successful, subtract from budget
 			this.budget -= price;
@@ -75,7 +77,7 @@ public class DSMSCustomerClient {
 
 		boolean nothingFound = true;
 		// corba invoke method
-		//String found = dsmsServant.findItem(this.customerID,itemName);
+		String found = service.findItem(this.customerID,itemName);
 		if(!found.equals("")) {
 			String[] founds = found.split(",");
 			for(String i : founds) {
@@ -108,7 +110,7 @@ public class DSMSCustomerClient {
 
 		boolean status = true;
 		// corba invoke method
-		//double price = dsmsServant.returnItem(this.customerID, itemID, dateOfReturn);
+		double price = service.returnItem(this.customerID, itemID, dateOfReturn);
 		if(price > 0) this.budget+=price;
 		else status = false;
 

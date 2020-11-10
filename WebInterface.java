@@ -1,12 +1,8 @@
 package a3;
 
-import java.util.Date;
-
 import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
 
 @WebService
-@SOAPBinding(style = SOAPBinding.Style.RPC)
 public interface WebInterface {
 
 	  boolean addItem (String managerID, String itemID, String itemName, short quantity, double price);

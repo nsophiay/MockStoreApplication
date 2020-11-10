@@ -12,7 +12,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import javax.jws.*;
-import javax.xml.ws.Endpoint;
 
 @WebService()
 class DSMSImpl implements WebInterface{
@@ -798,7 +797,7 @@ public class DSMSServer {
 			Runnable QCServer = () -> {
 				System.out.println("QCServer Started...");
 				DSMSImpl impl = new DSMSImpl("QC");
-				Endpoint endpoint = Endpoint.publish("http://localhost:8080/comp", impl);
+				//Endpoint endpoint = Endpoint.publish("http://localhost:8080/comp", impl);
 			};
 
 			Runnable ONServer = () -> { 
@@ -807,12 +806,12 @@ public class DSMSServer {
 				impl.inventory.put("ON1000", new Item("ON1000", "Shirt", 20, 1000.01));
 				impl.inventory.put("ON2000", new Item("ON2000", "Tank top", 10, 8.00));
 				impl.inventory.put("ON3000", new Item("ON3000", "Socks", 5, 5.50));
-				Endpoint endpoint = Endpoint.publish("http://localhost:8080/comp", impl);
+				//Endpoint endpoint = Endpoint.publish("http://localhost:8080/comp", impl);
 			};
 			Runnable BCServer = () -> {
 				System.out.println("BCServer Started...");
 				DSMSImpl impl = new DSMSImpl("BC");
-				Endpoint endpoint = Endpoint.publish("http://localhost:8080/comp", impl);
+				//Endpoint endpoint = Endpoint.publish("http://localhost:8080/comp", impl);
 			};
 
 			Thread thread = new Thread(QCServer);

@@ -5,11 +5,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
+import javax.xml.ws.WebServiceRef;
+
 public class DSMSManagerClient {
 
 	String managerID;
 	String store;
 	File log;
+	@WebServiceRef(wsdlLocation="http://localhost:8080/dsms?wsdl")
+	static DSMSImpl service;
 
 	public DSMSManagerClient(String[] args, String ID) {
 		if(ID.charAt(2) != 'M') {
@@ -38,7 +42,7 @@ public class DSMSManagerClient {
 		boolean status = false;
 
 		// corba invoke method
-		//status = dsmsServant.addItem(this.managerID, itemID, itemName, quantity, price);
+		status = service.addItem(this.managerID, itemID, itemName, quantity, price);
 
 
 		// Write to file
@@ -64,7 +68,7 @@ public class DSMSManagerClient {
 		boolean status = false;
 
 		// corba invoke method
-		//status = dsmsServant.removeItem(this.managerID, itemID, quantity);
+		status = service.removeItem(this.managerID, itemID, quantity);
 
 		// Write to file
 		synchronized(log) {
@@ -87,7 +91,7 @@ public class DSMSManagerClient {
 	public void list() {
 
 		// corba invoke method
-		//System.out.println(dsmsServant.listItemAvailability(this.managerID));
+		System.out.println(service.listItemAvailability(this.managerID));
 
 		// Write to file
 		synchronized(log) {
