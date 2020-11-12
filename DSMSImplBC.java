@@ -16,7 +16,7 @@ import javax.jws.*;
 import javax.xml.ws.Endpoint;
 
 @WebService(endpointInterface = "a3.WebInterface")
-public class DSMSImpl implements WebInterface{
+public class DSMSImplBC implements WebInterface{
 
 	HashMap<String,Item> inventory = new HashMap<>();
 	File log;
@@ -29,9 +29,9 @@ public class DSMSImpl implements WebInterface{
 	boolean returnStatus;
 	double purchaseStatus;
 
-	public DSMSImpl() {}
+	public DSMSImplBC() {}
 
-	public DSMSImpl(String storeName){
+	public DSMSImplBC(String storeName){
 
 		inventory = new HashMap<String,Item>();
 		this.storeName = storeName;
@@ -62,7 +62,7 @@ public class DSMSImpl implements WebInterface{
 	}
 
 
-	public DSMSImpl(String storeName, HashMap<String,Item> inventory){
+	public DSMSImplBC(String storeName, HashMap<String,Item> inventory){
 
 		this.inventory = inventory;
 		this.storeName = storeName;
@@ -89,7 +89,7 @@ public class DSMSImpl implements WebInterface{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public int getPort() {
 		return port;
 	}
@@ -103,7 +103,7 @@ public class DSMSImpl implements WebInterface{
 	// Manager operations //
 	////////////////////////
 
-	//@WebMethod()
+	@WebMethod()
 	public boolean addItem(String managerID, String itemID, String itemName, short quantity, double price) {
 
 		boolean status = true;
@@ -142,7 +142,7 @@ public class DSMSImpl implements WebInterface{
 		return status;
 	}
 
-	//@WebMethod()
+	@WebMethod()
 	public boolean removeItem(String managerID, String itemID, short quantity) {
 
 		boolean status = true;
@@ -195,7 +195,7 @@ public class DSMSImpl implements WebInterface{
 
 	}
 
-	//@WebMethod()
+	@WebMethod()
 	public String listItemAvailability(String managerID) {
 		if(managerID.charAt(2)!='M') {
 			return "Sorry, only managers can list items!";
@@ -226,7 +226,7 @@ public class DSMSImpl implements WebInterface{
 	//   User operations  //
 	////////////////////////
 
-	//@WebMethod()
+	@WebMethod()
 	public boolean checkPurchase(String customerID) {
 		for(Item item : inventory.values()) {
 			if(item.IDOfBuyer.contains(customerID)) return false;
@@ -234,7 +234,7 @@ public class DSMSImpl implements WebInterface{
 		return true;
 	}
 
-	//@WebMethod()
+	@WebMethod()
 	public double purchaseItem(String customerID, String ID, a3.Date dateOfPurchase) {
 
 		String itemID = ID.substring(0,6);
@@ -320,7 +320,7 @@ public class DSMSImpl implements WebInterface{
 
 	}
 
-	//@WebMethod()
+	@WebMethod()
 	// Once an item becomes available, the first customer in the queue will be able to purchase it
 	public void checkAvailability(String itemID){
 
@@ -347,7 +347,7 @@ public class DSMSImpl implements WebInterface{
 	}
 
 
-	//@WebMethod()
+	@WebMethod()
 	public String findItem(String customerID, String itemName) {
 		boolean status = true;
 		String items = "";
@@ -392,7 +392,7 @@ public class DSMSImpl implements WebInterface{
 		return finalr;
 	}
 
-	//@WebMethod()
+	@WebMethod()
 	public double returnItem(String customerID, String itemID, a3.Date dateOfReturn) {
 		boolean status = true;
 		Item i = null;
@@ -464,7 +464,7 @@ public class DSMSImpl implements WebInterface{
 		return 0.0; // Returns 0 if failed
 	}
 
-	//@WebMethod()
+	@WebMethod()
 	public boolean exchangeItem(String customerID, String newItemID, String oldItemID) {
 
 		double budget = 0;
@@ -795,46 +795,18 @@ public class DSMSImpl implements WebInterface{
 			if (mySocket != null) mySocket.close();
 		}
 	}
-	
-public static void main(String args[]) {
-		
+
+	/*
+	public static void main(String args[]) {
+
 		try{
 
-			Runnable QCServer = () -> {
-				System.out.println("QCServer Started...");
-				DSMSImpl impl = new DSMSImpl("QC");
-				impl.inventory.put("QC1000", new Item("QC1000", "Das Kapital", 0, 25.00));
-				impl.inventory.put("QC2000", new Item("QC2000", "Avengers Infinity War", 10, 20.00));
-				impl.inventory.put("QC3000", new Item("QC3000", "Cosmos", 2, 17.50));
-				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterfaceQC", impl);
-			};
-
-			Runnable ONServer = () -> { 
-				System.out.println("ONServer Started...");
-				DSMSImpl impl = new DSMSImpl("ON");
-				impl.inventory.put("ON1000", new Item("ON1000", "Shirt", 20, 1000.01));
-				impl.inventory.put("ON2000", new Item("ON2000", "Tank top", 10, 8.00));
-				impl.inventory.put("ON3000", new Item("ON3000", "Socks", 5, 5.50));
-				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterfaceON", impl);
-			};
-			Runnable BCServer = () -> {
-				System.out.println("BCServer Started...");
-				DSMSImpl impl = new DSMSImpl("BC");
-				impl.inventory.put("BC1000", new Item("BC1000", "Barbell", 0, 100.00));
-				impl.inventory.put("BC2000", new Item("BC2000", "Dumbbells", 2, 34.00));
-				impl.inventory.put("BC3000", new Item("BC3000", "Kettlebells", 1, 50.00));
-				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterfaceBC", impl);
-			};
-
-			Thread thread = new Thread(QCServer);
-			Thread thread2 = new Thread(ONServer);
-			Thread thread3 = new Thread(BCServer);
-
-
-			thread.start(); 
-			thread2.start();
-			thread3.start();
-
+			System.out.println("ONServer Started...");
+			DSMSImplON impl = new DSMSImplON("ON");
+			impl.inventory.put("ON1000", new Item("ON1000", "Shirt", 20, 1000.01));
+			impl.inventory.put("ON2000", new Item("ON2000", "Tank top", 10, 8.00));
+			impl.inventory.put("ON3000", new Item("ON3000", "Socks", 5, 5.50));
+			Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterfaceON", impl);
 
 		}
 		catch (Exception e) {
@@ -842,7 +814,7 @@ public static void main(String args[]) {
 			e.printStackTrace(System.out);
 		}
 
-	}
+	}*/
 
 }
 

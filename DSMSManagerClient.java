@@ -8,14 +8,20 @@ import java.util.Date;
 
 import javax.xml.rpc.ServiceException;
 import javax.xml.ws.WebServiceRef;
+import javax.xml.ws.WebServiceRefs;
 
+@WebServiceRefs({
+	@WebServiceRef(wsdlLocation="http://localhost:8080/a3/WebInterfaceQC?wsdl"),
+	@WebServiceRef(wsdlLocation="http://localhost:8080/a3/WebInterfaceON?wsdl"),
+	@WebServiceRef(wsdlLocation="http://localhost:8080/a3/WebInterfaceBC?wsdl"),
+})
 public class DSMSManagerClient {
 
 	String managerID;
 	String store;
 	File log;
-	@WebServiceRef(wsdlLocation="http://localhost:8080/a3/WebInterface?wsdl")
-	static DSMSImplService implservice;	
+	
+	DSMSImplService implservice;	
 	WebInterface service;
 	
 	public DSMSManagerClient(String[] args, String ID) {

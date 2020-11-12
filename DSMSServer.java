@@ -9,28 +9,28 @@ public class DSMSServer {
 
 			Runnable QCServer = () -> {
 				System.out.println("QCServer Started...");
-				DSMSImpl impl = new DSMSImpl("QC");
+				DSMSImplQC impl = new DSMSImplQC("QC");
 				impl.inventory.put("QC1000", new Item("QC1000", "Das Kapital", 0, 25.00));
 				impl.inventory.put("QC2000", new Item("QC2000", "Avengers Infinity War", 10, 20.00));
 				impl.inventory.put("QC3000", new Item("QC3000", "Cosmos", 2, 17.50));
-				//Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterface", impl);
+				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterfaceQC", impl);
 			};
 
 			Runnable ONServer = () -> { 
 				System.out.println("ONServer Started...");
-				DSMSImpl impl = new DSMSImpl("ON");
+				DSMSImplON impl = new DSMSImplON("ON");
 				impl.inventory.put("ON1000", new Item("ON1000", "Shirt", 20, 1000.01));
 				impl.inventory.put("ON2000", new Item("ON2000", "Tank top", 10, 8.00));
 				impl.inventory.put("ON3000", new Item("ON3000", "Socks", 5, 5.50));
-				//Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterface", impl);
+				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterfaceON", impl);
 			};
 			Runnable BCServer = () -> {
 				System.out.println("BCServer Started...");
-				DSMSImpl impl = new DSMSImpl("BC");
+				DSMSImplBC impl = new DSMSImplBC("BC");
 				impl.inventory.put("BC1000", new Item("BC1000", "Barbell", 0, 100.00));
 				impl.inventory.put("BC2000", new Item("BC2000", "Dumbbells", 2, 34.00));
 				impl.inventory.put("BC3000", new Item("BC3000", "Kettlebells", 1, 50.00));
-				//Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterface", impl);
+				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterfaceBC", impl);
 			};
 
 			Thread thread = new Thread(QCServer);
