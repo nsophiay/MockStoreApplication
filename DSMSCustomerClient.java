@@ -4,8 +4,10 @@ import java.io.File;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.Date;
 
+import javax.xml.rpc.ServiceException;
 import javax.xml.ws.WebServiceRef;
 
 public class DSMSCustomerClient {
@@ -14,8 +16,10 @@ public class DSMSCustomerClient {
 	double budget;
 	String store;
 	File log;
-	@WebServiceRef(wsdlLocation="http://localhost:8080/dsms?wsdl")
-	static DSMSImpl service;
+	
+	@WebServiceRef(wsdlLocation="http://localhost:8080/a3/WebInterface?wsdl")
+	static DSMSImplService implservice;	
+	WebInterface service;
 
 	public DSMSCustomerClient(String[] args, String ID) {
 		if(ID.charAt(2) != 'U') {
@@ -27,23 +31,23 @@ public class DSMSCustomerClient {
 		store = ID.substring(0,2);
 		try {
 			log = new File(ID + "log.txt");
+			implservice = new DSMSImplServiceLocator();
+			service = implservice.getDSMSImplPort();
 			if(log.createNewFile()) {
 				System.out.println("File created for customer #" + ID);
 			}
-		} catch (IOException e) {
+		} catch (IOException | ServiceException e) {
 			e.printStackTrace();
 		}
 
-		// corba stuff used to be here
 	}
 
-	public int purchase(String itemID, DSMSApp.Date dateOfPurchase) {
+	public int purchase(String itemID, a3.Date dateOfPurchase) throws RemoteException {
 
 		int status = 1;
 
 		String custAndBudget = this.customerID + budget;
 
-		// corba invoke method
 		double price = service.purchaseItem(custAndBudget, itemID, dateOfPurchase);
 
 		if(price > 0 && this.budget > price) { // If purchase was successful, subtract from budget
@@ -73,7 +77,7 @@ public class DSMSCustomerClient {
 		return status;
 	}
 
-	public boolean find(String itemName) {
+	public boolean find(String itemName) throws RemoteException {
 
 		boolean nothingFound = true;
 		// corba invoke method
@@ -106,7 +110,7 @@ public class DSMSCustomerClient {
 		return !nothingFound;
 	}
 
-	public boolean returnItem(String itemID, DSMSApp.Date dateOfReturn) {
+	public boolean returnItem(String itemID, a3.Date dateOfReturn) throws RemoteException {
 
 		boolean status = true;
 		// corba invoke method
@@ -144,7 +148,7 @@ public class DSMSCustomerClient {
 			try {
 				FileWriter writeUser = new FileWriter(log, true);
 
-				writeUser.append("\nREQUEST:\n" + "\tDate of exchange: " + DSMSApp.Date.getCurrentDate()
+				writeUser.append("\nREQUEST:\n" + "\tDate of exchange: " + a3.Date.getCurrentDate()
 				+ "\n\tType: return" + "\n\tSubmitted by: " + customerID
 				+ "\n\tOld Item ID: " + oldItemID
 				+ "\n\tNew Item ID: " + newItemID

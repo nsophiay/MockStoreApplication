@@ -7,13 +7,15 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import javax.jws.*;
+import javax.xml.ws.Endpoint;
 
-@WebService()
+@WebService(endpointInterface = "a3.WebInterface")
 public class DSMSImpl implements WebInterface{
 
 	HashMap<String,Item> inventory = new HashMap<>();
@@ -86,6 +88,14 @@ public class DSMSImpl implements WebInterface{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 
 
@@ -225,7 +235,7 @@ public class DSMSImpl implements WebInterface{
 	}
 
 	@WebMethod()
-	public double purchaseItem(String customerID, String ID, DSMSApp.Date dateOfPurchase) {
+	public double purchaseItem(String customerID, String ID, a3.Date dateOfPurchase) {
 
 		String itemID = ID.substring(0,6);
 		String store = itemID.substring(0,2);
@@ -242,7 +252,7 @@ public class DSMSImpl implements WebInterface{
 
 		// If the item is not from the store, send a request to the right server
 		if(!store.equals(storeName)) {
-			return Double.parseDouble(sendPurchaseRequest(store, customerID, ID, dateOfPurchase.Day, dateOfPurchase.Month, dateOfPurchase.Year));
+			return Double.parseDouble(sendPurchaseRequest(store, customerID, ID, dateOfPurchase.getDay(), dateOfPurchase.getMonth(), dateOfPurchase.getYear()));
 		}
 
 		// Check if item exists in the store
@@ -323,7 +333,7 @@ public class DSMSImpl implements WebInterface{
 						String customerID = item.waitingList.poll();
 						System.out.println(customerID.substring(0,7) + " is no longer in the waiting list for item " + itemID);
 
-						if(purchaseItem(customerID, itemID, DSMSApp.Date.getCurrentDate()) > 0) {
+						if(purchaseItem(customerID, itemID, a3.Date.getCurrentDate()) > 0) {
 							System.out.println(customerID.substring(0,7) + " has purchased " + itemID);
 						}
 						else {
@@ -383,7 +393,7 @@ public class DSMSImpl implements WebInterface{
 	}
 
 	@WebMethod()
-	public double returnItem(String customerID, String itemID, DSMSApp.Date dateOfReturn) {
+	public double returnItem(String customerID, String itemID, a3.Date dateOfReturn) {
 		boolean status = true;
 		Item i = null;
 
@@ -396,10 +406,10 @@ public class DSMSImpl implements WebInterface{
 
 						Calendar c = Calendar.getInstance();
 
-						c.set(i.dateOfPurchase.Day, i.dateOfPurchase.Month, i.dateOfPurchase.Year);
+						c.set(i.dateOfPurchase.getDay(), i.dateOfPurchase.getMonth(), i.dateOfPurchase.getYear());
 						int dayOfYear = c.get(Calendar.DAY_OF_YEAR);
 
-						c.set(dateOfReturn.Day, dateOfReturn.Month, dateOfReturn.Year);
+						c.set(dateOfReturn.getDay(), dateOfReturn.getMonth(), dateOfReturn.getYear());
 						int dayOfYearReturn = c.get(Calendar.DAY_OF_YEAR);
 
 						// If the item was purchased by this customer within the past 30 days, they can return it
@@ -461,7 +471,7 @@ public class DSMSImpl implements WebInterface{
 		if(customerID.length() > 7) budget = Double.parseDouble(customerID.substring(7));
 		String customerIDactual = customerID.substring(0,7);
 
-		DSMSApp.Date currentDate = DSMSApp.Date.getCurrentDate();
+		a3.Date currentDate = a3.Date.getCurrentDate();
 		sema = 2;
 		setExchange(true);
 		boolean status = false;
@@ -472,7 +482,7 @@ public class DSMSImpl implements WebInterface{
 
 		if(pStatus.trim().equals("true") && rStatus.trim().matches("[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}")) {
 			String[] d = rStatus.trim().split("-");
-			DSMSApp.Date returnDate = new DSMSApp.Date(Short.parseShort(d[0]),Short.parseShort(d[1]),Short.parseShort(d[2]));
+			a3.Date returnDate = new a3.Date(Short.parseShort(d[0]),Short.parseShort(d[1]),Short.parseShort(d[2]));
 			returnItem(customerIDactual, oldItemID, returnDate);
 			purchaseItem(customerID, newItemID, currentDate);
 			return true;
@@ -690,7 +700,7 @@ public class DSMSImpl implements WebInterface{
 
 					String[] s = rq.split(",");
 
-					DSMSApp.Date d = new DSMSApp.Date(Short.parseShort(s[2]), Short.parseShort(s[3]), Short.parseShort(s[4]));
+					a3.Date d = new a3.Date(Short.parseShort(s[2]), Short.parseShort(s[3]), Short.parseShort(s[4]));
 
 
 					double a = purchaseItem(s[0], s[1], d);
@@ -713,7 +723,7 @@ public class DSMSImpl implements WebInterface{
 					String[] s = rq.split(",");
 
 
-					double a = returnItem(s[0], s[1], DSMSApp.Date.getCurrentDate());
+					double a = returnItem(s[0], s[1], a3.Date.getCurrentDate());
 					serverResponse = new String("" + a).getBytes();
 
 				}
@@ -751,7 +761,7 @@ public class DSMSImpl implements WebInterface{
 						if(i.IDOfBuyer.contains(s[0])){
 
 							Calendar c = Calendar.getInstance();
-							c.set(i.dateOfPurchase.Day, i.dateOfPurchase.Month, i.dateOfPurchase.Year);
+							c.set(i.dateOfPurchase.getDay(), i.dateOfPurchase.getMonth(), i.dateOfPurchase.getYear());
 							int dayOfYear = c.get(Calendar.DAY_OF_YEAR);
 
 							c.set(dateOfReturn.Day, dateOfReturn.Month, dateOfReturn.Year);
@@ -761,7 +771,7 @@ public class DSMSImpl implements WebInterface{
 							if((dayOfYearReturn - dayOfYear < 30) && (dayOfYearReturn - dayOfYear >= 0)){
 
 								success = true;
-								dateString = i.dateOfPurchase.Day + "-" + i.dateOfPurchase.Month + "-" + i.dateOfPurchase.Year;
+								dateString = i.dateOfPurchase.getDay() + "-" + i.dateOfPurchase.getMonth() + "-" + i.dateOfPurchase.getYear();
 								System.out.println("Return verification succeeded");
 							}
 							else System.out.println("Return verification failed");
@@ -784,6 +794,54 @@ public class DSMSImpl implements WebInterface{
 		} finally {
 			if (mySocket != null) mySocket.close();
 		}
+	}
+	
+public static void main(String args[]) {
+		
+		try{
+
+			Runnable QCServer = () -> {
+				System.out.println("QCServer Started...");
+				DSMSImpl impl = new DSMSImpl("QC");
+				impl.inventory.put("QC1000", new Item("QC1000", "Das Kapital", 0, 25.00));
+				impl.inventory.put("QC2000", new Item("QC2000", "Avengers Infinity War", 10, 20.00));
+				impl.inventory.put("QC3000", new Item("QC3000", "Cosmos", 2, 17.50));
+				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterface", impl);
+			};
+
+			Runnable ONServer = () -> { 
+				System.out.println("ONServer Started...");
+				DSMSImpl impl = new DSMSImpl("ON");
+				impl.inventory.put("ON1000", new Item("ON1000", "Shirt", 20, 1000.01));
+				impl.inventory.put("ON2000", new Item("ON2000", "Tank top", 10, 8.00));
+				impl.inventory.put("ON3000", new Item("ON3000", "Socks", 5, 5.50));
+				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterface", impl);
+			};
+			Runnable BCServer = () -> {
+				System.out.println("BCServer Started...");
+				DSMSImpl impl = new DSMSImpl("BC");
+				impl.inventory.put("BC1000", new Item("BC1000", "Barbell", 0, 100.00));
+				impl.inventory.put("BC2000", new Item("BC2000", "Dumbbells", 2, 34.00));
+				impl.inventory.put("BC3000", new Item("BC3000", "Kettlebells", 1, 50.00));
+				Endpoint endpoint = Endpoint.publish("http://localhost:8080/a3/WebInterface", impl);
+			};
+
+			Thread thread = new Thread(QCServer);
+			Thread thread2 = new Thread(ONServer);
+			Thread thread3 = new Thread(BCServer);
+
+
+			thread.start(); 
+			thread2.start();
+			thread3.start();
+
+
+		}
+		catch (Exception e) {
+			System.err.println("ERROR: " + e);
+			e.printStackTrace(System.out);
+		}
+
 	}
 
 }

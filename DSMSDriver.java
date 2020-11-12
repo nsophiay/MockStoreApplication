@@ -135,12 +135,16 @@ public class DSMSDriver {
 
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						System.out.println((managers.get(ID).add(itemID, itemName, quantity, price))?"Item successfully added":"Item could not be added");
 						// Make sure that the console does not print out of order
 						synchronized(lock) {
 							lock.notify();
 							begin = true;
 						}	
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 
 					// Start thread
@@ -153,12 +157,16 @@ public class DSMSDriver {
 
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						System.out.println((newMC.add(itemID, itemName, quantity, price))?"Item successfully added":"Item could not be added");
 						// Make sure that the console does not print out of order
 						synchronized(lock) {
 							lock.notify();
 							begin = true;
-						}	
+						}
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 
 					// Start thread
@@ -180,12 +188,16 @@ public class DSMSDriver {
 				if(managers.containsKey(ID)) {
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						if(managers.get(ID).remove(itemID, quantity)) System.out.println("Item successfully removed");
 						else System.out.println("Item could not be removed");
 						synchronized(lock) {
 							lock.notify();
 							begin = true;
-						}	
+						}
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 					Thread operation = new Thread(r);
 					operation.start();
@@ -196,12 +208,16 @@ public class DSMSDriver {
 					managers.put(ID, newMC);
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						if(newMC.remove(itemID, quantity)) System.out.println("Item successfully removed");
 						else System.out.println("Item could not be removed");
 						synchronized(lock) {
 							lock.notify();
 							begin = true;
-						}	
+						}
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 					Thread operation = new Thread(r);
 					operation.start();
@@ -214,11 +230,15 @@ public class DSMSDriver {
 				if(managers.containsKey(ID)) {
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						managers.get(ID).list();
 						synchronized(lock) {
 							lock.notify();
 							begin = true;
 						}	
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 					Thread operation = new Thread(r);
 					operation.start();
@@ -229,11 +249,15 @@ public class DSMSDriver {
 
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						newMC.list();
 						synchronized(lock) {
 							lock.notify();
 							begin = true;
 						}	
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 					Thread operation = new Thread(r);
 					operation.start();
@@ -249,16 +273,16 @@ public class DSMSDriver {
 				System.out.print("\nEnter the date of the purchase (dd-mm-yyyy) or 'today'): ");
 
 				String date = in.nextLine();
-				DSMSApp.Date d;
+				a3.Date d;
 
-				if(date.equalsIgnoreCase("today")) { d = DSMSApp.Date.getCurrentDate(); }
+				if(date.equalsIgnoreCase("today")) { d = a3.Date.getCurrentDate(); }
 				else {
 					String[] parse = date.split("-");
 
 					Short day = Short.parseShort(parse[0]);
 					Short month = Short.parseShort(parse[1]);
 					Short year = Short.parseShort(parse[2]);
-					d = new DSMSApp.Date(day, month, year);
+					d = new a3.Date(day, month, year);
 				}
 
 				DSMSCustomerClient temp;
@@ -274,6 +298,7 @@ public class DSMSDriver {
 
 				// Run requested operation in a thread
 				Runnable r = () -> {
+					try {
 					int status = temp.purchase(itemID, d); // Attempt to purchase item
 					if(status == -1) { // If -1 is returned, the item is not in stock.
 
@@ -292,6 +317,9 @@ public class DSMSDriver {
 						lock.notify();
 						begin = true;
 					}	
+					}catch(Exception e) {
+						System.out.println(e.getStackTrace());
+					}
 				};
 				Thread operation = new Thread(r);
 				operation.start();
@@ -304,6 +332,7 @@ public class DSMSDriver {
 				if(customers.containsKey(ID)) {
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						if(!(customers.get(ID).find(itemName))) {
 							System.out.println("No item was found.");
 						}
@@ -311,6 +340,9 @@ public class DSMSDriver {
 							lock.notify();
 							begin = true;
 						}	
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 					Thread operation = new Thread(r);
 					operation.start();
@@ -320,6 +352,7 @@ public class DSMSDriver {
 					customers.put(ID, newCC);
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						if(!(customers.get(ID).find(itemName))) {
 							System.out.println("No item was found.");
 						}
@@ -327,6 +360,9 @@ public class DSMSDriver {
 							lock.notify();
 							begin = true;
 						}	
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 					Thread operation = new Thread(r);
 					operation.start();
@@ -341,21 +377,22 @@ public class DSMSDriver {
 				System.out.print("\nEnter the date of the return (dd-mm-yyyy) or 'today'): ");
 
 				String date = in.nextLine();
-				DSMSApp.Date d;
+				a3.Date d;
 
-				if(date.equalsIgnoreCase("today")) { d = DSMSApp.Date.getCurrentDate(); }
+				if(date.equalsIgnoreCase("today")) { d = a3.Date.getCurrentDate(); }
 				else {
 					String[] parse = date.split("-");
 					Short day = Short.parseShort(parse[0]);
 					Short month = Short.parseShort(parse[1]);
 					Short year = Short.parseShort(parse[2]);
-					d = new DSMSApp.Date(day, month, year);
+					d = new a3.Date(day, month, year);
 				}
 
 
 				if(customers.containsKey(ID)) {
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						if(customers.get(ID).returnItem(itemID, d)) {
 							System.out.println("Item successfully returned");
 						}
@@ -366,6 +403,9 @@ public class DSMSDriver {
 							lock.notify();
 							begin = true;
 						}	
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 					Thread operation = new Thread(r);
 					operation.start();
@@ -375,11 +415,15 @@ public class DSMSDriver {
 					customers.put(ID, newCC);
 					// Run requested operation in a thread
 					Runnable r = () -> {
+						try {
 						newCC.returnItem(itemID, d);
 						synchronized(lock) {
 							lock.notify();
 							begin = true;
 						}	
+						}catch(Exception e) {
+							System.out.println(e.getStackTrace());
+						}
 					};
 					Thread operation = new Thread(r);
 					operation.start();

@@ -16,7 +16,7 @@ public class Item {
 	String itemName;
 	int quantity;
 	double price;
-	DSMSApp.Date dateOfPurchase;
+	a3.Date dateOfPurchase;
 	ArrayList<String> IDOfBuyer;
 	PriorityBlockingQueue<String> waitingList;
 	

@@ -3,8 +3,10 @@ package a3;
 import java.io.File; 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.Date;
 
+import javax.xml.rpc.ServiceException;
 import javax.xml.ws.WebServiceRef;
 
 public class DSMSManagerClient {
@@ -12,9 +14,10 @@ public class DSMSManagerClient {
 	String managerID;
 	String store;
 	File log;
-	@WebServiceRef(wsdlLocation="http://localhost:8080/dsms?wsdl")
-	static DSMSImpl service;
-
+	@WebServiceRef(wsdlLocation="http://localhost:8080/a3/WebInterface?wsdl")
+	static DSMSImplService implservice;	
+	WebInterface service;
+	
 	public DSMSManagerClient(String[] args, String ID) {
 		if(ID.charAt(2) != 'M') {
 			System.out.println("Manager IDs must be in the format: [provinceAcronym]M[4-digit ID]");
@@ -24,10 +27,12 @@ public class DSMSManagerClient {
 		store = ID.substring(0,2);
 		try {
 			log = new File(ID + "log.txt");
+			implservice = new DSMSImplServiceLocator();
+			service = implservice.getDSMSImplPort();
 			if(log.createNewFile()) {
 				System.out.println("File created for manager #" + ID);
 			}
-		} catch (IOException e) {
+		} catch (IOException | ServiceException e) {
 			e.printStackTrace();
 		}
 
@@ -37,7 +42,7 @@ public class DSMSManagerClient {
 	}
 
 
-	public boolean add(String itemID, String itemName, short quantity, double price) {
+	public boolean add(String itemID, String itemName, short quantity, double price) throws RemoteException {
 
 		boolean status = false;
 
@@ -64,7 +69,7 @@ public class DSMSManagerClient {
 		return status;
 	}
 
-	public boolean remove(String itemID, short quantity) {
+	public boolean remove(String itemID, short quantity) throws RemoteException {
 		boolean status = false;
 
 		// corba invoke method
@@ -88,7 +93,7 @@ public class DSMSManagerClient {
 
 		return status;
 	}
-	public void list() {
+	public void list() throws RemoteException {
 
 		// corba invoke method
 		System.out.println(service.listItemAvailability(this.managerID));
