@@ -4,10 +4,13 @@ import java.io.File;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Date;
 
+import javax.xml.namespace.QName;
 import javax.xml.rpc.ServiceException;
+import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceRef;
 
 public class DSMSCustomerClient {
@@ -16,9 +19,6 @@ public class DSMSCustomerClient {
 	double budget;
 	String store;
 	File log;
-	
-	@WebServiceRef(wsdlLocation="http://localhost:8080/a3/WebInterface?wsdl")
-	static DSMSImplService implservice;	
 	WebInterface service;
 
 	public DSMSCustomerClient(String[] args, String ID) {
@@ -29,14 +29,28 @@ public class DSMSCustomerClient {
 		customerID = ID;
 		budget = 1000.00;
 		store = ID.substring(0,2);
+		
 		try {
 			log = new File(ID + "log.txt");
-			implservice = new DSMSImplServiceLocator();
-			service = implservice.getDSMSImplPort();
 			if(log.createNewFile()) {
 				System.out.println("File created for customer #" + ID);
 			}
-		} catch (IOException | ServiceException e) {
+			QName compQName = new QName("http://a3/", "DSMSImplService");
+			if(store.equals("QC")) {
+				URL compURL = new URL("http://localhost:8080/a3/WebInterfaceQC?wsdl");
+				Service compService = Service.create(compURL, compQName);
+				service = compService.getPort(WebInterface.class);
+			} else if(store.equals("ON")) {
+				URL compURL = new URL("http://localhost:8080/a3/WebInterfaceON?wsdl");
+				Service compService = Service.create(compURL, compQName);
+				service = compService.getPort(WebInterface.class);
+			}
+			else if(store.equals("BC")) {
+				URL compURL = new URL("http://localhost:8080/a3/WebInterfaceBC?wsdl");
+				Service compService = Service.create(compURL, compQName);
+				service = compService.getPort(WebInterface.class);
+			}
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 

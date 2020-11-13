@@ -9,8 +9,10 @@ package a3;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 
 @WebService()
+@SOAPBinding(style = SOAPBinding.Style.RPC)
 public interface WebInterface extends java.rmi.Remote {
 	@WebMethod()
     public boolean addItem(java.lang.String arg0, java.lang.String arg1, java.lang.String arg2, short arg3, double arg4) throws java.rmi.RemoteException;
