@@ -94,7 +94,7 @@ public class DSMSCustomerClient {
 	public boolean find(String itemName) throws RemoteException {
 
 		boolean nothingFound = true;
-		// corba invoke method
+	
 		String found = service.findItem(this.customerID,itemName);
 		if(!found.equals("")) {
 			String[] founds = found.split(",");
@@ -127,7 +127,7 @@ public class DSMSCustomerClient {
 	public boolean returnItem(String itemID, a3.Date dateOfReturn) throws RemoteException {
 
 		boolean status = true;
-		// corba invoke method
+	
 		double price = service.returnItem(this.customerID, itemID, dateOfReturn);
 		if(price > 0) this.budget+=price;
 		else status = false;
@@ -148,13 +148,12 @@ public class DSMSCustomerClient {
 		return status;
 	}
 
-	public boolean exchangeItem(String customerID, String newItemID, String oldItemID) {
+	public boolean exchangeItem(String customerID, String newItemID, String oldItemID) throws RemoteException {
 
 		boolean status = true;
 		String custAndBudget = this.customerID + budget;
 
-		// corba invoke method
-		// status = dsmsServant.exchangeItem(custAndBudget, newItemID, oldItemID);
+		status = service.exchangeItem(custAndBudget, newItemID, oldItemID);
 
 
 		// Write to file
